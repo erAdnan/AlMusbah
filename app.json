@@ -1,0 +1,9 @@
+{
+  "expo": {
+    "sdkVersion": "29.0.0",
+    "name": "AlMusbah",
+    "slug": "AlMusbah",
+    "icon": "src/images/app-icon.png",
+    "privacy": "public"
+  }
+}
