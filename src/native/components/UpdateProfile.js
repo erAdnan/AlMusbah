@@ -1,7 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Image, ImageEditor, TouchableOpacity } from 'react-native';
+import { ImagePicker } from 'expo';
 import {
-  Container, Content, Text, Body, ListItem, Form, Item, Label, Input, CheckBox, Button, View,
+  Container, Content, DatePicker, Text, Body, ListItem, Form, Item, Label, Input, CheckBox, Button, View, Card, CardItem,
 } from 'native-base';
 import Messages from './Messages';
 import Loading from './Loading';
@@ -32,6 +34,10 @@ class UpdateProfile extends React.Component {
       firstName: props.member.firstName || '',
       lastName: props.member.lastName || '',
       email: props.member.email || '',
+      qualification: props.member.qualification || '',
+      workExperience: props.member.workExperience || '',
+      dateOfBirth: props.member.dateOfBirth || '',
+      imageUrl: props.member.imageUrl || '',
       password: '',
       password2: '',
       changeEmail: false,
@@ -55,12 +61,46 @@ class UpdateProfile extends React.Component {
       .catch(e => console.log(`Error: ${e}`));
   }
 
+  _pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+    
+    if (result.cancelled) {
+      console.log('got here');
+      return;
+    }
+
+    let resizedUri = await new Promise((resolve, reject) => {
+      ImageEditor.cropImage(result.uri,
+        {
+          offset: { x: 0, y: 0 },
+          size: { width: result.width, height: result.height },
+          displaySize: { width: 50, height: 50 },
+          resizeMode: 'contain',
+        },
+        (uri) => resolve(uri),
+        () => reject(),
+      );
+    });
+    
+    // this gives you a rct-image-store URI or a base64 image tag that
+    // you can use from ImageStore
+
+    this.setState({ imageUrl: resizedUri });
+  };
+
   render() {
     const { loading, error, success } = this.props;
     const {
       firstName,
       lastName,
+      qualification,
+      workExperience,
+      dateOfBirth,
       email,
+      imageUrl,
       changeEmail,
       changePassword,
     } = this.state;
@@ -78,7 +118,16 @@ class UpdateProfile extends React.Component {
 
           {error && <Messages message={error} />}
           {success && <Messages message={success} type="success" />}
-
+            <TouchableOpacity onPress={this._pickImage} style={{justifyContent: 'center', alignItems: 'center'}} >
+                  <Image
+                    source={imageUrl ? { uri: imageUrl } : require('../../images/icon_edit.png')}
+                    style={{
+                      height: 200,
+                      width: 200,
+                      resizeMode: 'contain'
+                    }}
+                  />
+            </TouchableOpacity>
           <Form>
             <Item stackedLabel>
               <Label>
@@ -98,6 +147,50 @@ class UpdateProfile extends React.Component {
                 value={lastName}
                 onChangeText={v => this.handleChange('lastName', v)}
               />
+            </Item>
+
+            <Item stackedLabel>
+              <Label>
+                Qualification
+              </Label>
+              <Input
+                value={qualification}
+                onChangeText={v => this.handleChange('qualification', v)}
+              />
+            </Item>
+
+            <Item stackedLabel>
+              <Label>
+                Work Experience (in year)
+              </Label>
+              <Input
+                value={workExperience}
+                onChangeText={v => this.handleChange('workExperience', v)}
+              />
+            </Item>
+
+            <Item stackedLabel>
+              <Label>
+                Date of Birth
+              </Label>
+              <DatePicker
+                defaultDate={new Date(2018, 4, 4)}
+                minimumDate={new Date(1950, 1, 1)}
+                maximumDate={new Date(2050, 12, 31)}
+                locale={"en"}
+                timeZoneOffsetInMinutes={undefined}
+                modalTransparent={false}
+                animationType={"fade"}
+                androidMode={"default"}
+                placeHolderText='Select Date'
+                textStyle={{ color: "black" }}
+                placeHolderTextStyle={{ color: "#d3d3d3" }}
+                onDateChange={v => this.handleChange('dateOfBirth', v)}
+              />
+              {/* <Input
+                value={dateOfBirth}
+                onChangeText={v => this.handleChange('dateOfBirth', v)}
+              /> */}
             </Item>
 
             <ListItem>
