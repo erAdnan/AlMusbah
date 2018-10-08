@@ -1,7 +1,7 @@
+import { AsyncStorage } from 'react-native';
 import ErrorMessages from '../constants/errors';
 import statusMessage from './status';
 import { Firebase, FirebaseRef } from '../lib/firebase';
-
 /**
   * Sign Up to Firebase
   */
@@ -12,6 +12,10 @@ export function signUp(formData) {
     password2,
     firstName,
     lastName,
+    qualification,
+    workExperience,
+    dateOfBirth,
+    imageUrl,
   } = formData;
 
   return dispatch => new Promise(async (resolve, reject) => {
@@ -24,7 +28,7 @@ export function signUp(formData) {
     if (password !== password2) return reject({ message: ErrorMessages.passwordsDontMatch });
 
     await statusMessage(dispatch, 'loading', true);
-
+    console.log('dateOfBirth:', dateOfBirth);
     // Go to Firebase
     return Firebase.auth()
       .createUserWithEmailAndPassword(email, password)
@@ -32,8 +36,13 @@ export function signUp(formData) {
         // Send user details to Firebase database
         if (res && res.user.uid) {
           FirebaseRef.child(`users/${res.user.uid}`).set({
+            email,
             firstName,
             lastName,
+            qualification,
+            workExperience,
+            dateOfBirth,
+            imageUrl,
             signedUp: Firebase.database.ServerValue.TIMESTAMP,
             lastLoggedIn: Firebase.database.ServerValue.TIMESTAMP,
           }).then(() => statusMessage(dispatch, 'loading', false).then(resolve));
@@ -42,6 +51,42 @@ export function signUp(formData) {
   }).catch(async (err) => {
     await statusMessage(dispatch, 'loading', false);
     throw err.message;
+  });
+}
+
+export function storeSignUpData(formData) {
+  const {
+    email,
+    password,
+    password2,
+    firstName,
+    lastName,
+    qualification,
+    workExperience,
+    dateOfBirth,
+    imageUrl,
+  } = formData;
+  console.log('storeSignUpData (' + email + ') JSON.stringify(formData): ' + JSON.stringify(formData));
+
+  return dispatch => new Promise(async (resolve, reject) => {
+    // Validation checks
+    if (!firstName) return reject({ message: ErrorMessages.missingFirstName });
+    if (!lastName) return reject({ message: ErrorMessages.missingLastName });
+    if (!email) return reject({ message: ErrorMessages.missingEmail });
+    if (!password) return reject({ message: ErrorMessages.missingPassword });
+    if (!password2) return reject({ message: ErrorMessages.missingPassword });
+    if (password !== password2) return reject({ message: ErrorMessages.passwordsDontMatch });
+
+    await statusMessage(dispatch, 'loading', true);
+
+    return AsyncStorage.setItem(email, JSON.stringify(formData), (error) => {
+      if (error) {
+        console.log('Error setting item (' + keyName + ') to local storage! ' + error.message);
+        statusMessage(dispatch, 'loading', false);
+      } else {
+        statusMessage(dispatch, 'loading', false).then(resolve);
+      }
+    });
   });
 }
 

@@ -20,6 +20,10 @@ class UpdateProfile extends React.Component {
       firstName: PropTypes.string,
       lastName: PropTypes.string,
       email: PropTypes.string,
+      qualification: PropTypes.string,
+      workExperience: PropTypes.string,
+      dateOfBirth: PropTypes.string,
+      imageUrl: PropTypes.string,
     }).isRequired,
   }
 
@@ -36,7 +40,7 @@ class UpdateProfile extends React.Component {
       email: props.member.email || '',
       qualification: props.member.qualification || '',
       workExperience: props.member.workExperience || '',
-      dateOfBirth: props.member.dateOfBirth || '',
+      dateOfBirth: props.member.dateOfBirth || 'Select Date',
       imageUrl: props.member.imageUrl || '',
       password: '',
       password2: '',
@@ -66,7 +70,7 @@ class UpdateProfile extends React.Component {
       allowsEditing: true,
       aspect: [4, 3],
     });
-    
+
     if (result.cancelled) {
       console.log('got here');
       return;
@@ -84,7 +88,7 @@ class UpdateProfile extends React.Component {
         () => reject(),
       );
     });
-    
+
     // this gives you a rct-image-store URI or a base64 image tag that
     // you can use from ImageStore
 
@@ -185,15 +189,15 @@ class UpdateProfile extends React.Component {
                 placeHolderText='Select Date'
                 textStyle={{ color: "black" }}
                 placeHolderTextStyle={{ color: "#d3d3d3" }}
-                onDateChange={v => this.handleChange('dateOfBirth', v)}
+                onDateChange={v => this.handleChange('dateOfBirth', new Date(v).toString())}
               />
-              {/* <Input
-                value={dateOfBirth}
+              <Input
+                value={dateOfBirth.toString()}
                 onChangeText={v => this.handleChange('dateOfBirth', v)}
-              /> */}
+              />
             </Item>
 
-            <ListItem>
+            {/* <ListItem>
               <CheckBox
                 checked={changeEmail}
                 onPress={() => this.handleChange('changeEmail', !changeEmail)}
@@ -251,7 +255,7 @@ class UpdateProfile extends React.Component {
                 </Item>
               </View>
               )
-            }
+            } */}
 
             <Spacer size={20} />
 

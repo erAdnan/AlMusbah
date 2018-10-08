@@ -20,7 +20,7 @@ class SignUp extends Component {
     const { onFormSubmit } = this.props;
     return onFormSubmit(data)
       .catch((err) => { this.setState({ errorMessage: err }); throw err; });
-    
+
     // console.log('onFormSubmit data:', JSON.stringify(data));
     // return AppHelper.storeItem('signup_data', JSON.stringify(data))
     //   .catch((err) => { this.setState({ errorMessage: err }); throw err; });
