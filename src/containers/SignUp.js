@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-
+import * as AppHelper from '../helper/appHelper';
 import { signUp } from '../actions/member';
 
 class SignUp extends Component {
@@ -20,6 +20,10 @@ class SignUp extends Component {
     const { onFormSubmit } = this.props;
     return onFormSubmit(data)
       .catch((err) => { this.setState({ errorMessage: err }); throw err; });
+
+    // console.log('onFormSubmit data:', JSON.stringify(data));
+    // return AppHelper.storeItem('signup_data', JSON.stringify(data))
+    //   .catch((err) => { this.setState({ errorMessage: err }); throw err; });
   }
 
   render = () => {

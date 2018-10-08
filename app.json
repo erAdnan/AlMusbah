@@ -4,6 +4,12 @@
     "name": "AlMusbah",
     "slug": "AlMusbah",
     "icon": "src/images/app-icon.png",
-    "privacy": "public"
+    "privacy": "public",
+    "ios": {
+      "bundleIdentifier": "com.almusbah.assign"
+    },
+    "android": {
+      "package": "com.almusbah.assign"
+    }
   }
 }

@@ -1,13 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Image, ImageEditor, TouchableOpacity } from 'react-native';
+import { ImagePicker } from 'expo';
 import {
-  Container, Content, Text, Form, Item, Label, Input, Button,
+  Container, Content, Text, Form, Item, Label, Input, Button, DatePicker,
 } from 'native-base';
 import { Actions } from 'react-native-router-flux';
 import Loading from './Loading';
 import Messages from './Messages';
 import Header from './Header';
 import Spacer from './Spacer';
+import * as AppHelper from '../../helper/appHelper';
 
 class SignUp extends React.Component {
   static propTypes = {
@@ -25,6 +28,10 @@ class SignUp extends React.Component {
     this.state = {
       firstName: '',
       lastName: '',
+      qualification: '',
+      workExperience: '',
+      dateOfBirth: '',
+      imageUrl: '',
       email: '',
       password: '',
       password2: '',
@@ -43,13 +50,52 @@ class SignUp extends React.Component {
   handleSubmit = () => {
     const { onFormSubmit } = this.props;
     onFormSubmit(this.state)
-      .then(() => Actions.login())
+      .then((storedData) => {
+        console.log('handleSubmit storedData:', storedData);
+        Actions.login();
+      })
       .catch(e => console.log(`Error: ${e}`));
+    // console.log('handleSubmit this.state:', this.state);
+    // AppHelper.storeItem('signup_data', this.state)
+    //   .then((storedData) => {
+    //     console.log('handleSubmit storedData:', storedData);
+    //     Actions.login()
+    //   })
+    //   .catch(e => console.log(`Error: ${e}`));
   }
+
+  _pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    if (result.cancelled) {
+      console.log('got here');
+      return;
+    }
+
+    const resizedUri = await new Promise((resolve, reject) => {
+      ImageEditor.cropImage(result.uri,
+        {
+          offset: { x: 0, y: 0 },
+          size: { width: result.width, height: result.height },
+          displaySize: { width: 50, height: 50 },
+          resizeMode: 'contain',
+        },
+        uri => resolve(uri),
+        () => reject());
+    });
+
+    // this gives you a rct-image-store URI or a base64 image tag that
+    // you can use from ImageStore
+
+    this.setState({ imageUrl: resizedUri });
+  };
 
   render() {
     const { loading, error } = this.props;
-
+    const { imageUrl } = this.state;
     if (loading) return <Loading />;
 
     return (
@@ -60,6 +106,16 @@ class SignUp extends React.Component {
           />
 
           {error && <Messages message={error} />}
+          <TouchableOpacity onPress={this._pickImage} style={{ justifyContent: 'center', alignItems: 'center' }}>
+            <Image
+              source={imageUrl ? { uri: imageUrl } : require('../../images/icon_edit.png')}
+              style={{
+                height: 200,
+                width: 200,
+                resizeMode: 'contain',
+              }}
+            />
+          </TouchableOpacity>
 
           <Form>
             <Item stackedLabel>
@@ -74,6 +130,40 @@ class SignUp extends React.Component {
                 Last Name
               </Label>
               <Input onChangeText={v => this.handleChange('lastName', v)} />
+            </Item>
+
+            <Item stackedLabel>
+              <Label>
+                Qualification
+              </Label>
+              <Input onChangeText={v => this.handleChange('qualification', v)} />
+            </Item>
+
+            <Item stackedLabel>
+              <Label>
+                Work Experience (in year)
+              </Label>
+              <Input onChangeText={v => this.handleChange('workExperience', v)} />
+            </Item>
+
+            <Item stackedLabel>
+              <Label>
+                Date of Birth
+              </Label>
+              <DatePicker
+                defaultDate={new Date(2018, 4, 4)}
+                minimumDate={new Date(1950, 1, 1)}
+                maximumDate={new Date(2050, 12, 31)}
+                locale="en"
+                timeZoneOffsetInMinutes={undefined}
+                modalTransparent={false}
+                animationType="fade"
+                androidMode="default"
+                placeHolderText="Select Date"
+                textStyle={{ color: 'black' }}
+                placeHolderTextStyle={{ color: '#d3d3d3' }}
+                onDateChange={v => this.handleChange('dateOfBirth', v.toString())}
+              />
             </Item>
 
             <Item stackedLabel>

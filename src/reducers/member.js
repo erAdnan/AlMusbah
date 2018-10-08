@@ -25,6 +25,10 @@ export default function userReducer(state = initialState, action) {
           error: null,
           firstName: action.data.firstName,
           lastName: action.data.lastName,
+          qualification: action.data.qualification,
+          workExperience: action.data.workExperience,
+          dateOfBirth: action.data.dateOfBirth,
+          imageUrl: action.data.imageUrl,
           signedUp: action.data.signedUp,
           role: action.data.role,
         };
